@@ -7,24 +7,30 @@ var path = require('path');
 var config = require('./config');
 
 var port = 8999;
+
+// 创建http服务
 var server = http.createServer(function (request, response) {
 
+    // 获取请求的url
     var pathname = url.parse(request.url).pathname;
 
+    // 请求url拼接资源路径
     var realPath = `assets${pathname}`;
 
+    // 获取请求路径的拓展名
     var ext = path.extname(realPath);
-    console.log(ext);
-    console.log(config);
 
+    // 是否匹配缓存策略中的拓展名
     if (ext.match(config.fileMatch)) {
-        console.log(111);
         var expires = new Date();
         expires.setTime(expires.getTime() + config.maxAge * 1000);
+
+        // 设置expires和cache-control
         response.setHeader('Expires', expires.toUTCString());
         response.setHeader('Cache-Control', `max-age= ${config.maxAge}`);
     }
 
+    // 判断请求文件是否存在
     fs.exists(realPath, function (exist) {
         if (!exist) {
             // 不存在
